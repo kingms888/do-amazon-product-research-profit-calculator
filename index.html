@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
+  <title>Amazon Profit Calculator · Product Research Tool for Sellers</title>
+  <meta name="description" content="Free Amazon profit calculator & product research tool. Instantly compute net profit, margin & ROI from FBA fees, selling price & cost. Built for Amazon sellers.">
+  <meta name="keywords" content="Amazon profit calculator, Amazon product research tool, Etsy pricing calculator, Shopify CSV bulk editor, developer tool JSON to CSV, amazon sellers, etsy sellers, shopify sellers, developer tools, csv tools">
+  <link rel="canonical" href="https://amzprofit.example.com/">
+  <!-- Open Graph -->
+  <meta property="og:title" content="Amazon Profit & Product Research Calculator">
+  <meta property="og:description" content="Instant net profit & margin analysis for Amazon sellers. FBA fees, COGS, selling price → profit.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://amzprofit.example.com/">
+  <meta name="twitter:card" content="summary_large_image">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    }
+    body {
+      background: #f4f7fc;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
+      padding: 1.5rem 1rem;
+      color: #1e293b;
+    }
+    .container {
+      max-width: 1000px;
+      width: 100%;
+      background: white;
+      border-radius: 32px;
+      box-shadow: 0 20px 40px -12px rgba(0, 20, 30, 0.15);
+      padding: 2rem 1.8rem;
+      transition: box-shadow 0.2s;
+    }
+    @media (max-width: 600px) {
+      body { padding: 0.8rem; }
+      .container { padding: 1.5rem 1rem; border-radius: 24px; }
+    }
+    h1 {
+      font-size: 2.1rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+      margin-bottom: 0.25rem;
+      color: #0b2b3c;
+    }
+    .subhead {
+      font-size: 1rem;
+      color: #3b5a6f;
+      border-left: 4px solid #f59e0b;
+      padding-left: 0.75rem;
+      margin: 0.5rem 0 1.5rem 0;
+      font-weight: 400;
+    }
+    .tool-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.8rem;
+      margin: 1.8rem 0 1.2rem;
+    }
+    @media (max-width: 680px) {
+      .tool-grid {
+        grid-template-columns: 1fr;
+        gap: 1.2rem;
+      }
+    }
+    .input-panel {
+      background: #f9fafc;
+      padding: 1.5rem 1.3rem;
+      border-radius: 24px;
+      border: 1px solid #e6edf4;
+    }
+    .input-panel h2 {
+      font-size: 1.3rem;
+      font-weight: 600;
+      margin-bottom: 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .input-group {
+      margin-bottom: 1.2rem;
+    }
+    .input-group label {
+      display: block;
+      font-weight: 500;
+      font-size: 0.9rem;
+      margin-bottom: 0.3rem;
+      color: #1e3a4e;
+    }
+    .input-group .hint {
+      font-size: 0.75rem;
+      color: #5f7d95;
+      margin-top: 0.15rem;
+    }
+    .input-group input {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      font-size: 1rem;
+      border: 1px solid #cfddee;
+      border-radius: 16px;
+      background: white;
+      transition: 0.15s;
+      outline: none;
+    }
+    .input-group input:focus {
+      border-color: #f59e0b;
+      box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
+    }
+    .input-group input[type="number"] {
+      -moz-appearance: textfield;
+    }
+    .input-group input[type="number"]::-webkit-outer-spin-button,
+    .input-group input[type="number"]::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    .cta-calc {
+      background: #f59e0b;
+      border: none;
+      color: #0b1a24;
+      font-weight: 600;
+      font-size: 1.1rem;
+      padding: 0.85rem 1.5rem;
+      border-radius: 60px;
+      width: 100%;
+      cursor: pointer;
+      transition: 0.15s;
+      margin-top: 0.5rem;
+      box-shadow: 0 4px 8px rgba(245, 158, 11, 0.25);
+    }
+    .cta-calc:hover {
+      background: #e48f0a;
+      transform: scale(0.98);
+      box-shadow: 0 2px 6px rgba(245, 158, 11, 0.3);
+    }
+    .cta-calc:active {
+      background: #d48208;
+    }
+    .results-panel {
+      background: #ffffff;
+      padding: 1.5rem 1.3rem;
+      border-radius: 24px;
+      border: 1px solid #e6edf4;
+      box-shadow: 0 6px 12px -8px rgba(0,0,0,0.05);
+    }
+    .results-panel h2 {
+      font-size: 1.3rem;
+      font-weight: 600;
+      margin-bottom: 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .stat-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+    .stat-item {
+      background: #f4f8fe;
+      padding: 0.9rem 0.8rem;
+      border-radius: 20px;
+      border: 1px solid #e6edf4;
+    }
+    .stat-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      color: #54738c;
+      font-weight: 600;
+    }
+    .stat-value {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: #0b2b3c;
+      line-height: 1.2;
+      margin-top: 0.25rem;
+    }
+    .stat-value.positive {
+      color: #0f7b5a;
+    }
+    .stat-value.negative {
+      color: #b33a3a;
+    }
+    .stat-value small {
+      font-size: 0.9rem;
+      font-weight: 400;
+      color: #3f627c;
+      margin-left: 0.2rem;
+    }
+    .divider {
+      margin: 1.8rem 0 1rem;
+      border: 0;
+      height: 1px;
+      background: linear-gradient(to right, #dce7f0, transparent);
+    }
+    .affiliate-section {
+      background: #f2f6fa;
+      border-radius: 20px;
+      padding: 1.2rem 1.5rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      margin: 1.2rem 0 1.8rem;
+      border: 1px solid #deeaf3;
+    }
+    .affiliate-section p {
+      font-weight: 500;
+      color: #1a3b4e;
+    }
+    .affiliate-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.8rem 1.2rem;
+    }
+    .affiliate-links a {
+      background: white;
+      padding: 0.4rem 1rem;
+      border-radius: 40px;
+      text-decoration: none;
+      color: #1e3f58;
+      font-weight: 500;
+      font-size: 0.9rem;
+      border: 1px solid #cbdae7;
+      transition: 0.1s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+    .affiliate-links a:hover {
+      background: #fef7e7;
+      border-color: #f59e0b;
+    }
+    .ad-placeholder {
+      background: #eef3f9;
+      border-radius: 18px;
+      padding: 0.8rem 1.2rem;
+      margin: 1rem 0 0.5rem;
+      font-size: 0.85rem;
+      color: #3e5f77;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      border: 1px dashed #b7ccdd;
+    }
+    .ad-placeholder span {
+      font-weight: 500;
+    }
+    .ad-placeholder .ad-badge {
+      background: #d4e0ed;
+      padding: 0.2rem 0.7rem;
+      border-radius: 40px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: #1f405a;
+    }
+    .privacy-note {
+      font-size: 0.7rem;
+      color: #5b7c96;
+      margin-top: 1.5rem;
+      padding-top: 0.8rem;
+      border-top: 1px solid #dce7f0;
+      text-align: center;
+    }
+    .footer-tools {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem 1rem;
+      justify-content: center;
+      margin: 0.8rem 0 0;
+      font-size: 0.8rem;
+    }
+    .footer-tools a {
+      color: #2b5b7a;
+      text-decoration: none;
+      border-bottom: 1px dotted #b0c9dd;
+    }
+    .footer-tools a:hover {
+      color: #f59e0b;
+      border-bottom-color: #f59e0b;
+    }
+    .example-hint {
+      background: #f1f5f9;
+      border-radius: 30px;
+      padding: 0.25rem 0.9rem;
+      font-size: 0.75rem;
+      color: #2b5570;
+      display: inline-block;
+      margin-top: 0.3rem;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>📊 Amazon Profit & Research</h1>
+    <div class="subhead">FBA profit calculator · net margin · product research tool for sellers</div>
+  </header>
+
+  <!-- MAIN TOOL -->
+  <div class="tool-grid">
+    <div class="input-panel">
+      <h2><span>💰</span> Input costs</h2>
+      <div class="input-group">
+        <label for="sellingPrice">Selling price (USD)</label>
+        <input type="number" id="sellingPrice" placeholder="e.g. 49.99" step="0.01" min="0" value="49.99">
+        <div class="hint">Amazon listing price</div>
+      </div>
+      <div class="input-group">
+        <label for="fbaFee">FBA fee (fulfillment + referral)</label>
+        <input type="number" id="fbaFee" placeholder="e.g. 14.50" step="0.01" min="0" value="14.50">
+        <div class="hint">Referral + pick & pack + shipping</div>
+      </div>
+      <div class="input-group">
+        <label for="productCost">Product cost (COGS)</label>
+        <input type="number" id="productCost" placeholder="e.g. 12.00" step="0.01" min="0" value="12.00">
+        <div class="hint">Unit cost + prep & shipping to FBA</div>
+      </div>
+      <div class="input-group">
+        <label for="otherCosts">Other costs (ads, returns, misc)</label>
+        <input type="number" id="otherCosts" placeholder="e.g. 3.00" step="0.01" min="0" value="3.00">
+        <div class="hint">PPC, storage, returns, etc.</div>
+      </div>
+      <button class="cta-calc" id="calculateBtn">⚡ Calculate profit</button>
+      <div class="example-hint">Try: $49.99, $14.50, $12.00, $3.00 → net $20.49</div>
+    </div>
+
+    <div class="results-panel" id="resultsPanel">
+      <h2><span>📈</span> Profit analysis</h2>
+      <div class="stat-grid">
+        <div class="stat-item">
+          <div class="stat-label">Net profit</div>
+          <div class="stat-value" id="netProfitDisplay">$20.49</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">Profit margin</div>
+          <div class="stat-value" id="marginDisplay">41.0%</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">Total costs</div>
+          <div class="stat-value" id="totalCostDisplay">$29.50</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">ROI</div>
+          <div class="stat-value" id="roiDisplay">170.8%</div>
+        </div>
+      </div>
+      <div style="margin-top: 1rem; font-size:0.85rem; background:#f4fafe; padding:0.5rem 0.9rem; border-radius:40px; color:#1b4b66;">
+        ⚡ Research insight: net margin &gt; 25% is healthy for Amazon FBA.
+      </div>
+    </div>
+  </div>
+
+  <!-- AFFILIATE / RESOURCE PLACEHOLDER -->
+  <div class="affiliate-section">
+    <p><strong>🔎 Seller tools & resources</strong> — research smarter</p>
+    <div class="affiliate-links">
+      <a href="#" target="_blank" rel="noopener noreferrer">📦 Jungle Scout</a>
+      <a href="#" target="_blank" rel="noopener noreferrer">📊 Helium 10</a>
+      <a href="#" target="_blank" rel="noopener noreferrer">🛒 Amazon seller central</a>
+    </div>
+  </div>
+
+  <!-- AD PLACEHOLDER (visible) -->
+  <div class="ad-placeholder">
+    <span><span class="ad-badge">Ad</span> 📢 Amazon seller toolkit – try CSV validator &amp; listing analyzer</span>
+    <span style="font-size:0.8rem; background:#dce6f0; padding:0.2rem 0.8rem; border-radius:30px;">sponsored</span>
+  </div>
+
+  <!-- FOOTER / PRIVACY + EVENT METRICS -->
+  <div class="privacy-note">
+    <span>🔒 Privacy: events may be counted anonymously for product improvement. No personal data collected.</span>
+    <div class="footer-tools">
+      <a href="#">Amazon profit calculator</a>
+      <a href="#">Product research tool</a>
+      <a href="#">Etsy pricing calculator</a>
+      <a href="#">Shopify CSV editor</a>
+      <a href="#">JSON to CSV</a>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function() {
+    // DOM refs
+    const sellingPriceInput = document.getElementById('sellingPrice');
+    const fbaFeeInput = document.getElementById('fbaFee');
+    const productCostInput = document.getElementById('productCost');
+    const otherCostsInput = document.getElementById('otherCosts');
+    const calculateBtn = document.getElementById('calculateBtn');
+
+    const netProfitDisplay = document.getElementById('netProfitDisplay');
+    const marginDisplay = document.getElementById('marginDisplay');
+    const totalCostDisplay = document.getElementById('totalCostDisplay');
+    const roiDisplay = document.getElementById('roiDisplay');
+
+    // Helper: format USD
+    function formatUSD(value) {
+      return '$' + value.toFixed(2);
+    }
+
+    // Core calculation
+    function calculateProfit() {
+      const sellingPrice = parseFloat(sellingPriceInput.value) || 0;
+      const fbaFee = parseFloat(fbaFeeInput.value) || 0;
+      const productCost = parseFloat(productCostInput.value) || 0;
+      const otherCosts = parseFloat(otherCostsInput.value) || 0;
+
+      const totalCosts = fbaFee + productCost + otherCosts;
+      const netProfit = sellingPrice - totalCosts;
+      let margin = 0;
+      if (sellingPrice > 0) {
+        margin = (netProfit / sellingPrice) * 100;
+      }
+      let roi = 0;
+      if (totalCosts > 0) {
+        roi = (netProfit / totalCosts) * 100;
+      }
+
+      // update UI
+      netProfitDisplay.textContent = formatUSD(netProfit);
+      netProfitDisplay.className = 'stat-value' + (netProfit >= 0 ? ' positive' : ' negative');
+      marginDisplay.textContent = margin.toFixed(1) + '%';
+      totalCostDisplay.textContent = formatUSD(totalCosts);
+      roiDisplay.textContent = roi.toFixed(1) + '%';
+
+      // report event (anonymous)
+      reportEvent('calculate_profit', {
+        sellingPrice: sellingPrice,
+        fbaFee: fbaFee,
+        productCost: productCost,
+        otherCosts: otherCosts,
+        netProfit: netProfit,
+        margin: margin
+      });
+    }
+
+    // reportEvent function (global)
+    window.reportEvent = function(name, payload) {
+      if (typeof window.ORGANISM_METRICS_ENDPOINT === 'string' && window.ORGANISM_METRICS_ENDPOINT.length > 0) {
+        try {
+          const body = JSON.stringify({ event: name, payload: payload, timestamp: Date.now() });
+          // Use sendBeacon if available, else fetch
+          if (navigator.sendBeacon) {
+            navigator.sendBeacon(window.ORGANISM_METRICS_ENDPOINT, body);
+          } else {
+            fetch(window.ORGANISM_METRICS_ENDPOINT, {
+              method: 'POST',
+              body: body,
+              keepalive: true,
+              headers: { 'Content-Type': 'application/json' }
+            }).catch(() => {});
+          }
+        } catch (e) {
+          // silent
+        }
+      }
+    };
+
+    // initial calculation on load
+    calculateProfit();
+
+    // bind button click
+    calculateBtn.addEventListener('click', calculateProfit);
+
+    // optional: recalc on Enter key (any input)
+    const inputs = [sellingPriceInput, fbaFeeInput, productCostInput, otherCostsInput];
+    inputs.forEach(inp => {
+      inp.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          calculateProfit();
+        }
+      });
+      inp.addEventListener('change', calculateProfit);
+    });
+
+    // expose for debugging
+    console.log('Amazon Profit Calculator ready. reportEvent() available.');
+  })();
+</script>
+
+<!-- ORGANISM_METRICS_ENDPOINT example (configure via window) -->
+<script>
+  // If you want to enable metrics, set window.ORGANISM_METRICS_ENDPOINT
+  // e.g. window.ORGANISM_METRICS_ENDPOINT = 'https://metrics.example.com/collect';
+  // By default it's undefined → no network call.
+  // (this is just a placeholder, no endpoint configured)
+  // window.ORGANISM_METRICS_ENDPOINT = 'https://your-metrics-endpoint.example.com/event';
+</script>
+
+<section data-organism-discovery="hub" style="margin:32px auto 20px;max-width:1040px;padding:16px;border-top:1px solid #d9e2ec;color:#475569;font:14px/1.5 system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">
+  <strong style="display:block;color:#0f172a;margin-bottom:6px">More free browser tools</strong>
+  <p style="margin:0 0 8px">This page is part of an autonomous micro-tool network. Explore the live tool directory and related utilities.</p>
+  <p style="margin:0"><a href="https://kingms888.github.io/do-digital-organism-index/" style="color:#0f766e;font-weight:700">Open the tool directory</a> </p>
+</section>
+</body>
+</html>
